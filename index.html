@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Story Map — ABP Smart Stock</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --purple-bg: #EEEDFE; --purple-border: #534AB7; --purple-text: #3C3489;
+  --teal-bg: #E1F5EE; --teal-border: #0F6E56; --teal-text: #085041;
+  --green-bg: #EAF3DE; --green-border: #3B6D11; --green-text: #27500A; --green-badge: #C0DD97;
+  --amber-bg: #FAEEDA; --amber-border: #854F0B; --amber-text: #633806; --amber-badge: #FAC775;
+  --red-bg: #FDE8E8; --red-border: #B91C1C; --red-text: #7F1D1D; --red-badge: #FECACA;
+  --bg: #ffffff; --bg2: #F5F4F0; --bg3: #ECEAE4;
+  --text: #2C2C2A; --text2: #5F5E5A; --text3: #999790;
+  --border: rgba(44,44,42,0.1); --border2: rgba(44,44,42,0.2);
+  --radius: 10px; --radius-sm: 7px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --purple-bg: #2E2A6A; --purple-border: #AFA9EC; --purple-text: #D4D0F8;
+    --teal-bg: #06342E; --teal-border: #5DCAA5; --teal-text: #A8E8D4;
+    --green-bg: #1A3308; --green-border: #97C459; --green-text: #C6E698; --green-badge: #2C5010;
+    --amber-bg: #3D2004; --amber-border: #EF9F27; --amber-text: #F5C97A; --amber-badge: #5C3208;
+    --red-bg: #3D0808; --red-border: #EF4444; --red-text: #FCA5A5; --red-badge: #7F1D1D;
+    --bg: #1A1A18; --bg2: #242422; --bg3: #2E2E2B;
+    --text: #F1EFE8; --text2: #B4B2A9; --text3: #666560;
+    --border: rgba(241,239,232,0.08); --border2: rgba(241,239,232,0.18);
+  }
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg); color: var(--text);
+  min-height: 100vh; padding: 24px 20px 60px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* HEADER */
+header { margin-bottom: 20px; }
+.header-top { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+header h1 { font-size: 19px; font-weight: 700; letter-spacing: -0.3px; margin-bottom: 3px; }
+header p { font-size: 12px; color: var(--text2); }
+.header-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.btn {
+  padding: 6px 14px; border-radius: 99px; border: 1px solid var(--border2);
+  background: var(--bg2); color: var(--text2); font-size: 11.5px; font-weight: 500;
+  cursor: pointer; transition: all 0.14s; white-space: nowrap;
+}
+.btn:hover { background: var(--bg3); color: var(--text); }
+.btn-danger { border-color: var(--red-border); color: var(--red-text); }
+.btn-danger:hover { background: var(--red-bg); }
+
+/* TIMELINE */
+.timeline-bar {
+  display: flex; border-radius: var(--radius); overflow: hidden;
+  border: 0.5px solid var(--border2); margin-bottom: 16px; font-size: 11px;
+}
+.tl-phase { flex: 1; padding: 8px 12px; border-right: 0.5px solid var(--border2); }
+.tl-phase:last-child { border-right: none; }
+.tl-label { font-weight: 700; color: var(--text2); }
+.tl-dates { font-size: 10px; color: var(--text3); margin-top: 1px; }
+.tl-done { background: var(--green-bg); }
+.tl-progress { background: var(--amber-bg); }
+.tl-stable { background: var(--bg2); }
+
+/* FILTROS */
+.controls {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px;
+  padding: 10px 13px; background: var(--bg2);
+  border-radius: var(--radius); border: 0.5px solid var(--border2); align-items: center;
+}
+.controls-label { font-size: 11px; font-weight: 600; color: var(--text3); }
+.filter-btn {
+  padding: 4px 12px; border-radius: 99px; border: 1px solid var(--border2);
+  background: var(--bg); color: var(--text2); font-size: 11px; font-weight: 500;
+  cursor: pointer; transition: all 0.14s;
+}
+.filter-btn:hover { border-color: var(--purple-border); color: var(--purple-text); }
+.filter-btn.active { background: var(--purple-border); border-color: var(--purple-border); color: #fff; }
+
+/* MAP */
+.map-wrapper { overflow-x: auto; padding-bottom: 8px; }
+.map { min-width: 920px; }
+.section-label {
+  font-size: 9.5px; font-weight: 700; color: var(--text3);
+  text-transform: uppercase; letter-spacing: 0.11em;
+  margin-bottom: 6px; padding-left: 108px;
+}
+.row { display: flex; gap: 10px; margin-bottom: 6px; align-items: flex-start; }
+.row-label {
+  width: 100px; min-width: 100px; font-size: 9px; font-weight: 700;
+  color: var(--text3); text-align: right; padding-right: 10px; padding-top: 10px;
+  text-transform: uppercase; letter-spacing: 0.07em; line-height: 1.4;
+}
+
+/* COLUMNAS DROPPABLE */
+.col {
+  flex: 1; min-width: 155px;
+  min-height: 50px;
+  border-radius: var(--radius-sm);
+  transition: background 0.15s, outline 0.15s;
+  padding: 2px;
+  /* FLEX HORIZONTAL para que las cards se pongan lado a lado */
+  display: flex; flex-direction: column; gap: 4px;
+}
+.col.drag-over {
+  background: rgba(83,74,183,0.07);
+  outline: 2px dashed var(--purple-border);
+  outline-offset: -2px;
+}
+.col.static { padding: 0; min-height: unset; display: block; }
+
+/* ACTIVIDADES + TAREAS: layout horizontal (lado a lado) */
+.col.static-row { display: flex; flex-direction: column; gap: 4px; }
+
+/* CARDS */
+.card {
+  border-radius: var(--radius-sm); padding: 7px 9px;
+  font-size: 11px; font-weight: 500; border: 0.5px solid;
+  margin-bottom: 4px; line-height: 1.4;
+  transition: transform 0.12s, box-shadow 0.12s, opacity 0.2s;
+  user-select: none;
+}
+.card.draggable { cursor: grab; }
+.card.draggable:active { cursor: grabbing; }
+.card.draggable:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+.card.dragging { opacity: 0.35; transform: scale(0.97); }
+.card.clickable { cursor: pointer; }
+.card.dimmed { opacity: 0.15; pointer-events: none; }
+.activity { background: var(--purple-bg); border-color: var(--purple-border); color: var(--purple-text); }
+.task { background: var(--teal-bg); border-color: var(--teal-border); color: var(--teal-text); }
+.story-done { background: var(--green-bg); border-color: var(--green-border); color: var(--green-text); }
+.story-progress { background: var(--amber-bg); border-color: var(--amber-border); color: var(--amber-text); }
+
+/* DRAG PLACEHOLDER */
+.drag-placeholder {
+  border-radius: var(--radius-sm);
+  border: 2px dashed var(--purple-border);
+  background: rgba(83,74,183,0.06);
+  pointer-events: none;
+}
+.drag-placeholder.h { width: 8px; min-height: 40px; flex-shrink: 0; }
+.drag-placeholder.v { width: 100%; height: 36px; margin-bottom: 4px; }
+
+.badge {
+  display: inline-block; font-size: 9px; font-weight: 700;
+  padding: 1px 6px; border-radius: 99px; margin-bottom: 3px; border: 0.5px solid;
+}
+.badge-done { background: var(--green-badge); border-color: var(--green-border); color: var(--green-text); }
+.badge-progress { background: var(--amber-badge); border-color: var(--amber-border); color: var(--amber-text); }
+.responsible { font-size: 9.5px; color: var(--text3); margin-top: 3px; }
+.hint { font-size: 9.5px; color: var(--text3); margin-top: 2px; font-style: italic; }
+.drag-grip { font-size: 10px; color: var(--text3); float: right; margin-left: 4px; margin-top: 1px; }
+
+hr.divider { border: none; border-top: 2px dashed var(--border2); margin: 12px 0 10px 0; }
+
+.release-band {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 8px; padding-left: 108px;
+}
+.release-tag { font-size: 11px; font-weight: 700; color: var(--text2); white-space: nowrap; }
+.release-line { flex: 1; border-top: 1.5px dashed var(--border2); }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: var(--text); color: var(--bg); font-size: 12px; font-weight: 500;
+  padding: 9px 18px; border-radius: 99px; box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  transition: transform 0.25s cubic-bezier(.34,1.4,.64,1); z-index: 200; white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* LEGEND */
+.legend {
+  display: flex; gap: 14px; flex-wrap: wrap;
+  margin-top: 18px; padding-top: 12px; border-top: 0.5px solid var(--border2);
+  align-items: center;
+}
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text2); }
+.legend-dot { width: 11px; height: 11px; border-radius: 3px; border: 0.5px solid; flex-shrink: 0; }
+.legend-sep { color: var(--text3); font-size: 12px; }
+
+/* MODAL */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45); z-index: 100;
+  align-items: center; justify-content: center; padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--bg); border-radius: var(--radius); border: 0.5px solid var(--border2);
+  max-width: 560px; width: 100%; max-height: 88vh; overflow-y: auto;
+  padding: 24px; box-shadow: 0 24px 48px rgba(0,0,0,0.2); position: relative;
+}
+.modal-close {
+  position: sticky; top: 0; float: right; margin: -4px -4px 8px 8px;
+  background: var(--bg2); border: 0.5px solid var(--border2);
+  border-radius: 50%; width: 28px; height: 28px; cursor: pointer;
+  font-size: 13px; color: var(--text2); display: flex; align-items: center; justify-content: center;
+  transition: background 0.1s; flex-shrink: 0;
+}
+.modal-close:hover { background: var(--bg3); }
+.modal h2 { font-size: 15px; font-weight: 700; margin-bottom: 4px; line-height: 1.4; clear: both; }
+.modal .meta { font-size: 11px; color: var(--text3); margin-bottom: 14px; line-height: 1.7; }
+.modal .sec { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); margin: 14px 0 7px; }
+.modal p { font-size: 13px; color: var(--text2); line-height: 1.65; }
+.invest-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.invest-item {
+  background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius-sm);
+  padding: 7px 10px; font-size: 11px; color: var(--text2); line-height: 1.5;
+}
+.invest-item strong { color: var(--text); font-size: 11.5px; display: block; margin-bottom: 2px; }
+.gherkin-block {
+  background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius-sm);
+  padding: 10px 12px; margin-top: 6px; margin-bottom: 8px;
+}
+.gherkin-title { font-size: 10.5px; font-weight: 700; color: var(--text2); margin-bottom: 7px; }
+.gherkin-block p { font-size: 12px; line-height: 1.65; color: var(--text2); margin-bottom: 3px; }
+.gherkin-block .kw { font-weight: 700; color: var(--text); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div>
+      <h1>User Story Map — ABP Smart Stock</h1>
+      <p>Sistema de gestión de inventario · Instituto Superior Politécnico Córdoba · 2026 &nbsp;·&nbsp; Arrastrá las tarjetas entre las 5 columnas para reorganizarlas · Hacé clic en una historia para ver detalles</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn" onclick="resetBoard()">↺ Restaurar orden</button>
+      <button class="btn btn-danger" onclick="clearStorage()">🗑 Limpiar guardado</button>
+    </div>
+  </div>
+</header>
+
+<div class="timeline-bar">
+  <div class="tl-phase tl-done">
+    <div class="tl-label">✓ Fase 1 — MVP móvil</div>
+    <div class="tl-dates">01 may → 21 may 2026 · 32 días de desarrollo en total · HU1, HU2, HU5</div>
+  </div>
+  <div class="tl-phase tl-progress">
+    <div class="tl-label">⏳ Fase 2 — Módulo web y analítica</div>
+    <div class="tl-dates">22 may → 05 jun 2026 · HU4, HU3</div>
+  </div>
+  <div class="tl-phase tl-stable">
+    <div class="tl-label">🔧 Fase 3 — QA y cierre</div>
+    <div class="tl-dates">06 jun → 23 jun 2026</div>
+  </div>
+</div>
+
+<div class="controls">
+  <span class="controls-label">Filtrar por rol:</span>
+  <button class="filter-btn active" onclick="filterRole('all',this)">Todos</button>
+  <button class="filter-btn" onclick="filterRole('repositor',this)">Repositor</button>
+  <button class="filter-btn" onclick="filterRole('encargado',this)">Encargado de stock</button>
+  <button class="filter-btn" onclick="filterRole('supervisor',this)">Supervisor</button>
+  <button class="filter-btn" onclick="filterRole('admin',this)">Administrador</button>
+</div>
+
+<div class="map-wrapper"><div class="map" id="map">
+
+  <!-- ACTIVIDADES (estáticas, 5 columnas backbone) -->
+  <div class="section-label">Actividades (backbone)</div>
+  <div class="row" id="row-activities">
+    <div class="row-label"></div>
+    <div class="col static"><div class="card activity">📦 Carga de inventario</div></div>
+    <div class="col static"><div class="card activity">🔔 Monitoreo de stock</div></div>
+    <div class="col static"><div class="card activity">🗑️ Gestión de mermas</div></div>
+    <div class="col static"><div class="card activity">📊 Reportes diarios</div></div>
+    <div class="col static"><div class="card activity">🖥️ Dashboard comercial</div></div>
+  </div>
+
+  <!-- TAREAS (estáticas, 3 filas) -->
+  <div class="section-label" style="margin-top:4px">Tareas del usuario</div>
+  <div class="row">
+    <div class="row-label"></div>
+    <div class="col static"><div class="card task">Escanear código de barras / QR</div></div>
+    <div class="col static"><div class="card task">Configurar stock mínimo</div></div>
+    <div class="col static"><div class="card task">Registrar baja con motivo</div></div>
+    <div class="col static"><div class="card task">Generar reporte diario</div></div>
+    <div class="col static"><div class="card task">Ver estadísticas consolidadas</div></div>
+  </div>
+  <div class="row">
+    <div class="row-label"></div>
+    <div class="col static"><div class="card task">Confirmar / corregir datos</div></div>
+    <div class="col static"><div class="card task">Recibir alerta crítica</div></div>
+    <div class="col static"><div class="card task">Sincronizar mermas en tiempo real</div></div>
+    <div class="col static"><div class="card task">Exportar reporte a PDF</div></div>
+    <div class="col static"><div class="card task">Filtrar por período y categoría</div></div>
+  </div>
+  <div class="row">
+    <div class="row-label"></div>
+    <div class="col static"><div class="card task">Agregar producto no reconocido</div></div>
+    <div class="col static"><div class="card task">Revisar panel de alertas</div></div>
+    <div class="col static"></div>
+    <div class="col static"></div>
+    <div class="col static"><div class="card task">Detectar categorías en quiebre</div></div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- FILA FASE 1 (5 columnas) -->
+  <div class="release-band">
+    <span class="release-tag">Fase 1 — MVP móvil (mayo 2026) · 32 días de desarrollo en total</span>
+    <div class="release-line"></div>
+  </div>
+  <div class="row" id="row-fase1">
+    <div class="row-label">Fase 1</div>
+    <div class="col droppable" id="col-carga" data-col="col-carga" data-orient="vertical"></div>
+    <div class="col droppable" id="col-monitoreo" data-col="col-monitoreo" data-orient="vertical"></div>
+    <div class="col droppable" id="col-mermas" data-col="col-mermas" data-orient="vertical"></div>
+    <div class="col droppable" id="col-reportes" data-col="col-reportes" data-orient="vertical"></div>
+    <div class="col droppable" id="col-dashboard" data-col="col-dashboard" data-orient="vertical"></div>
+  </div>
+
+  <!-- FILA FASE 2 (5 columnas) -->
+  <div class="release-band">
+    <span class="release-tag">Fase 2 — Módulo web y analítica (mayo–junio 2026)</span>
+    <div class="release-line"></div>
+  </div>
+  <div class="row" id="row-fase2">
+    <div class="row-label">Fase 2</div>
+    <div class="col droppable" id="col-fase2-carga" data-col="col-fase2-carga" data-orient="vertical"></div>
+    <div class="col droppable" id="col-fase2-monitoreo" data-col="col-fase2-monitoreo" data-orient="vertical"></div>
+    <div class="col droppable" id="col-fase2-mermas" data-col="col-fase2-mermas" data-orient="vertical"></div>
+    <div class="col droppable" id="col-fase2-reportes" data-col="col-fase2-reportes" data-orient="vertical"></div>
+    <div class="col droppable" id="col-fase2-dashboard" data-col="col-fase2-dashboard" data-orient="vertical"></div>
+  </div>
+
+  <!-- ZONA BACKLOG (1 fila horizontal, cards lado a lado) -->
+  <hr class="divider">
+  <div class="release-band">
+    <span class="release-tag" style="color:var(--text3)">Backlog / sin asignar</span>
+    <div class="release-line"></div>
+  </div>
+  <div class="row">
+    <div class="row-label">Backlog</div>
+    <div class="col droppable" id="col-backlog" data-col="col-backlog" data-orient="horizontal" style="flex-direction:row;flex-wrap:wrap;align-items:flex-start;min-height:50px;padding:4px;">
+      <div style="font-size:10.5px;color:var(--text3);padding:6px;font-style:italic" id="backlog-hint">
+        Arrastrá acá las historias que querés sacar de las fases temporalmente.
+      </div>
+    </div>
+  </div>
+
+  <!-- LEYENDA -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--purple-bg);border-color:var(--purple-border)"></div>Actividad</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--teal-bg);border-color:var(--teal-border)"></div>Tarea del usuario</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--green-bg);border-color:var(--green-border)"></div>Historia lista</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--amber-bg);border-color:var(--amber-border)"></div>Historia en curso</div>
+    <span class="legend-sep">·</span>
+    <div style="font-size:11px;color:var(--text3)">⠿ = agarrá para mover · clic = ver detalles</div>
+  </div>
+
+</div></div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" onclick="closeOnOverlay(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────────────
+const STORIES = {
+  hu1: {
+    id: 'hu1', role: 'repositor',
+    badgeClass: 'badge-done', badgeLabel: '✓ Listo · 01–10/05',
+    cardClass: 'story-done',
+    title: 'HU1', subtitle: 'Como <em>repositor</em>, quiero escanear productos para agilizar la carga y evitar errores manuales.',
+    responsible: 'Melina Rico (Dev) · Natalia Dalmau (BA)',
+    defaultCol: 'col-carga',
+    modal: {
+      title: 'HU1 — Escaneo de productos en góndola',
+      meta: 'Rol: Repositor &nbsp;·&nbsp; 01/05 – 10/05/2026 (9 días) &nbsp;·&nbsp; Melina Rico (Dev) · Natalia Dalmau (BA)',
+      goal: 'Escanear los productos con la cámara de la app para agilizar la carga de datos y evitar errores manuales.',
+      invest: [
+        ['I — Independiente','La app puede desarrollarse en cada celular de los repositores de forma autónoma.'],
+        ['N — Negociable','El modo de escaneo (código de barras, QR, visual) es negociable con el equipo.'],
+        ['V — Valiosa','Da rapidez al repositor y reduce errores de carga manual.'],
+        ['E — Estimable','Se estima integrar cámara, lector de códigos y validación con la base de datos.'],
+        ['S — Small','Acotada al escaneo y confirmación de un producto individual.'],
+        ['T — Testeable','Se verifica si escanea correctamente y si actualiza la información en la base de datos.'],
+      ],
+      scenarios: [
+        { title: 'Escenario 1 — Escaneo correcto', lines: ['DADO QUE el repositor tiene la app del negocio,','CUANDO escanea un producto,','ENTONCES la app contabiliza la cantidad y tipo de producto (código de barras), y el repositor confirma o rechaza los datos.'] },
+        { title: 'Escenario 2 — Producto no reconocido', lines: ['DADO QUE el repositor tiene la app del negocio,','CUANDO escanea un producto que no está registrado en el sistema,','ENTONCES la app muestra "Producto no agregado" y ofrece la opción de agregarlo manualmente o reportar al encargado.'] },
+        { title: 'Escenario 3 — Error de lectura', lines: ['DADO QUE el repositor tiene la app del negocio,','CUANDO la cámara no logra leer correctamente el código de barras,','ENTONCES la app solicita reintentar el escaneo y permite ingresar el código manualmente como alternativa.'] },
+      ]
+    }
+  },
+  hu2: {
+    id: 'hu2', role: 'encargado',
+    badgeClass: 'badge-done', badgeLabel: '✓ Listo · 11–15/05',
+    cardClass: 'story-done',
+    title: 'HU2', subtitle: 'Como <em>encargado de stock</em>, quiero alertas automáticas cuando el inventario baje del mínimo.',
+    responsible: 'Natalia Dalmau Vallejos (BA)',
+    defaultCol: 'col-monitoreo',
+    modal: {
+      title: 'HU2 — Alertas automáticas de stock crítico',
+      meta: 'Rol: Encargado de stock &nbsp;·&nbsp; 11/05 – 15/05/2026 (5 días) &nbsp;·&nbsp; Natalia Dalmau Vallejos',
+      goal: 'Recibir alertas automáticas en tiempo real cuando el inventario descienda por debajo de su límite mínimo, para coordinar la recarga y evitar quiebres de stock visibles al cliente.',
+      invest: [
+        ['I — Independiente','La lógica del trigger se ejecuta en el servidor, independiente de la app del repositor.'],
+        ['N — Negociable','El canal de alerta (push, email, indicador en panel) se define con el diseñador UX.'],
+        ['V — Valiosa','Pasa de gestión reactiva a proactiva, protegiendo ventas y disponibilidad.'],
+        ['E — Estimable','Se basa en una condicional simple: Stock Actual < Stock Mínimo.'],
+        ['S — Small','Acotada a la detección de stock crítico y emisión de alerta visual.'],
+        ['T — Testeable','Se reduce el stock artificialmente y se verifica si aparece la alerta correspondiente.'],
+      ],
+      scenarios: [
+        { title: 'Escenario 1 — Disparo automático de alerta', lines: ['DADO QUE "Leche Entera 1L" tiene stock mínimo de 10 unidades (preaviso desde 20),','CUANDO una venta hace que el stock caiga a 9 unidades,','ENTONCES el sistema genera automáticamente una alerta crítica asociada al producto de manera inmediata.'] },
+        { title: 'Escenario 2 — Visualización en panel de control', lines: ['DADO QUE el encargado de stock se encuentra en el panel general,','CUANDO accede a la sección "Alertas de Reposición",','ENTONCES el sistema muestra una lista ordenada por prioridad con nombre del producto, ubicación en góndola y cantidad actual.'] },
+        { title: 'Escenario 3 — Remoción automática tras reposición', lines: ['DADO QUE un producto tiene una alerta activa de "Stock Crítico",','CUANDO el repositor ingresa mercadería que supera el límite mínimo (usando HU-01),','ENTONCES el sistema da por solucionada la alerta y la remueve automáticamente de la lista en tiempo real.'] },
+      ]
+    }
+  },
+  hu5: {
+    id: 'hu5', role: 'repositor',
+    badgeClass: 'badge-done', badgeLabel: '✓ Listo · 16–21/05',
+    cardClass: 'story-done',
+    title: 'HU5', subtitle: 'Como <em>repositor</em>, quiero registrar mermas desde la app móvil seleccionando el motivo de baja.',
+    responsible: 'Melina Rico (Dev) · Ignacio Ipolito (UX)',
+    defaultCol: 'col-mermas',
+    modal: {
+      title: 'HU5 — Registro de mermas desde app móvil',
+      meta: 'Rol: Repositor &nbsp;·&nbsp; 16/05 – 21/05/2026 (5 días) &nbsp;·&nbsp; Melina Rico (Dev) · Ignacio Ipolito (UX)',
+      goal: 'Registrar productos dañados, vencidos o rotos directamente desde la app móvil seleccionando el motivo de baja, para descontarlos del inventario real de inmediato.',
+      invest: [
+        ['I — Independiente','Reutiliza la interfaz de escaneo de HU-01, sin depender del módulo web.'],
+        ['N — Negociable','La lista de motivos (rotura, vencimiento, robo) y la visualización son negociables.'],
+        ['V — Valiosa','Las mermas no registradas alteran el stock teórico, provocando falsos positivos.'],
+        ['E — Estimable','Reutiliza el código de HU-01; solo se agrega el selector de motivo de movimiento.'],
+        ['S — Small','Limitada al reporte y descuento de la pérdida física en el pasillo.'],
+        ['T — Testeable','Se marcan 3 unidades como "Vencido" y se verifica el descuento exacto en la base de datos.'],
+      ],
+      scenarios: [
+        { title: 'Escenario 1 — Registro exitoso de merma', lines: ['DADO QUE el repositor selecciona "Registrar Merma" en la app,','CUANDO escanea el código, selecciona "Rotura / Dañado", ingresa la cantidad y presiona "Confirmar Baja",','ENTONCES el sistema resta las unidades del stock y guarda el historial con fecha y hora. La app muestra: "Merma registrada correctamente".'] },
+        { title: 'Escenario 2 — Intento sin especificar motivo', lines: ['DADO QUE el repositor ya escaneó el producto y colocó la cantidad,','CUANDO intenta presionar "Confirmar Baja" sin seleccionar motivo,','ENTONCES la app bloquea el envío, resalta el campo en rojo y muestra: "Por favor, seleccione el motivo de la merma para continuar".'] },
+        { title: 'Escenario 3 — Sincronización con panel del Data Analyst', lines: ['DADO QUE el repositor confirmó con éxito el registro de una merma,','CUANDO el Data Analyst o el Supervisor consulten el inventario en tiempo real,','ENTONCES las unidades descontadas figuran bajo "Mermas del día", manteniendo la integridad de los datos de stock.'] },
+      ]
+    }
+  },
+  hu3: {
+    id: 'hu3', role: 'supervisor',
+    badgeClass: 'badge-progress', badgeLabel: '⏳ En curso · 01–05/06',
+    cardClass: 'story-progress',
+    title: 'HU3', subtitle: 'Como <em>supervisor de sucursal</em>, quiero un reporte diario con quiebres, mermas y productos repuestos.',
+    responsible: 'Enzo Cabana (DA) · Melina Rico (Dev)',
+    defaultCol: 'col-fase2-reportes',
+    modal: {
+      title: 'HU3 — Reporte diario consolidado',
+      meta: 'Rol: Supervisor de sucursal &nbsp;·&nbsp; 01/06 – 05/06/2026 (5 días) &nbsp;·&nbsp; Enzo Cabana (DA) · Melina Rico (Dev)',
+      goal: 'Generar un reporte diario consolidado con el estado del inventario, quiebres de stock y mermas del día, para identificar anomalías y tomar decisiones de compra de emergencia.',
+      invest: [
+        ['I — Independiente','Se desarrolla en el panel web usando datos ya almacenados (Enzo puede simularlos).'],
+        ['N — Negociable','El formato de exportación (PDF, Excel, mail) se negocia entre Ignacio (UX) y Melina (Dev).'],
+        ['V — Valiosa','Sin este reporte el supervisor no puede reclamar faltantes a proveedores ni corregir desajustes.'],
+        ['E — Estimable','Acotado a datos del día actual y tres métricas claras (stock, quiebres, mermas).'],
+        ['S — Small','Limitado al reporte diario; reportes anuales o predictivos serían una Épica.'],
+        ['T — Testeable','Se cargan 5 quiebres de stock de prueba y se verifica que el reporte los muestre exactamente.'],
+      ],
+      scenarios: [
+        { title: 'Escenario 1 — Generación del reporte diario', lines: ['DADO QUE el supervisor inició sesión en el panel web y está en "Módulo de Reportes",','CUANDO selecciona la fecha del día y presiona "Generar Reporte Diario",','ENTONCES el sistema muestra: total de productos repuestos, lista de quiebres (stock físico = 0), y cantidad y motivo de mermas (roturas, vencimientos).'] },
+        { title: 'Escenario 2 — Exportar reporte a PDF', lines: ['DADO QUE el supervisor ya generó y está visualizando el reporte diario,','CUANDO hace clic en "Exportar a PDF",','ENTONCES el sistema genera y descarga automáticamente un archivo PDF con exactamente la misma información consolidada de la pantalla.'] },
+      ]
+    }
+  },
+  hu4: {
+    id: 'hu4', role: 'admin',
+    badgeClass: 'badge-progress', badgeLabel: '⏳ En curso · 22–30/05',
+    cardClass: 'story-progress',
+    title: 'HU4', subtitle: 'Como <em>administrador comercial</em>, quiero un dashboard con gráficos de ventas y stock por categoría.',
+    responsible: 'Jorge Paez (UX) · Enzo Cabana (DA) · Melina Rico (Dev)',
+    defaultCol: 'col-fase2-dashboard',
+    modal: {
+      title: 'HU4 — Dashboard comercial',
+      meta: 'Rol: Administrador del sistema &nbsp;·&nbsp; 22/05 – 30/05/2026 (8 días) &nbsp;·&nbsp; Jorge Paez (UX) · Enzo Cabana (DA) · Melina Rico (Dev)',
+      goal: 'Ver un dashboard con gráficos consolidados de estadísticas de ventas y evolución de stock por categoría, para identificar productos en riesgo de quiebre y optimizar la estrategia de compras.',
+      invest: [
+        ['I — Independiente','El panel web puede desarrollarse con datos simulados sin depender de la app móvil.'],
+        ['N — Negociable','El tipo de gráfico (barras, líneas, tortas) y la frecuencia de actualización son negociables.'],
+        ['V — Valiosa','Permite a la gerencia ver "la foto completa" del supermercado y actuar estratégicamente.'],
+        ['E — Estimable','Acotada a visualizar datos existentes con una librería de gráficos (Chart.js o similar).'],
+        ['S — Small','Se limita exclusivamente a "visualizar"; no incluye edición ni predicciones.'],
+        ['T — Testeable','Se ingresan 100 ventas simuladas de "Lácteos" y se verifica la actualización correcta del gráfico.'],
+      ],
+      scenarios: [
+        { title: 'Escenario 1 — Carga exitosa del Dashboard', lines: ['DADO QUE el administrador inició sesión y accede al "Dashboard Comercial",','CUANDO la página termina de cargar,','ENTONCES el sistema muestra: un gráfico de líneas con la tendencia de ventas del mes, y un gráfico de barras con niveles de stock por categoría (Almacén, Lácteos, Limpieza, etc.).'] },
+        { title: 'Escenario 2 — Filtrado por período de tiempo', lines: ['DADO QUE el administrador está visualizando los gráficos del panel,','CUANDO selecciona el filtro "Últimos 7 días" y presiona "Aplicar",','ENTONCES ambos gráficos se actualizan dinámicamente mostrando solo los movimientos de esa semana.'] },
+        { title: 'Escenario 3 — Alerta visual por categoría crítica', lines: ['DADO QUE el administrador revisa el gráfico de niveles de stock por categoría,','CUANDO una categoría tiene más del 30% de sus productos en "quiebre de stock" (stock = 0),','ENTONCES el panel resalta esa categoría con un indicador visual de color rojo como advertencia crítica.'] },
+      ]
+    }
+  }
+};
+
+const DEFAULT_LAYOUT = {
+  'col-carga': ['hu1'],
+  'col-monitoreo': ['hu2'],
+  'col-mermas': ['hu5'],
+  'col-reportes': [],
+  'col-dashboard': [],
+  'col-fase2-carga': [],
+  'col-fase2-monitoreo': [],
+  'col-fase2-mermas': [],
+  'col-fase2-reportes': ['hu3'],
+  'col-fase2-dashboard': ['hu4'],
+  'col-backlog': []
+};
+
+const STORAGE_KEY = 'usm_abp_layout_v4';
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+function buildCard(story) {
+  const el = document.createElement('div');
+  el.className = `card ${story.cardClass} draggable`;
+  el.draggable = true;
+  el.dataset.id = story.id;
+  el.dataset.role = story.role;
+  el.innerHTML = `
+    <span class="drag-grip">⠿⠿</span>
+    <div class="badge ${story.badgeClass}">${story.badgeLabel}</div>
+    <div><strong>${story.title}</strong> · ${story.subtitle}</div>
+    <div class="responsible">${story.responsible}</div>
+    <div class="hint">Clic para ver detalles · arrastrá para mover</div>
+  `;
+  el.addEventListener('dragstart', onDragStart);
+  el.addEventListener('dragend', onDragEnd);
+  el.addEventListener('click', e => { e.stopPropagation(); openModal(story.id); });
+  return el;
+}
+
+function renderLayout(layout) {
+  Object.entries(layout).forEach(([colId, storyIds]) => {
+    const col = document.getElementById(colId);
+    if (!col) return;
+    // keep only non-card children (like the hint div in backlog)
+    const hints = [...col.querySelectorAll('#backlog-hint')];
+    col.innerHTML = '';
+    hints.forEach(h => col.appendChild(h));
+    storyIds.forEach(id => {
+      if (STORIES[id]) col.appendChild(buildCard(STORIES[id]));
+    });
+    updateBacklogHint();
+  });
+}
+
+function updateBacklogHint() {
+  const backlog = document.getElementById('col-backlog');
+  const hint = document.getElementById('backlog-hint');
+  const hasCards = backlog.querySelector('.card');
+  if (hint) hint.style.display = hasCards ? 'none' : 'block';
+}
+
+// ─── DRAG & DROP ─────────────────────────────────────────────────────────────
+let draggedEl = null;
+let placeholder = null;
+
+function onDragStart(e) {
+  draggedEl = e.currentTarget;
+  draggedEl.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', draggedEl.dataset.id);
+  placeholder = document.createElement('div');
+  const sourceCol = draggedEl.parentElement;
+  const orient = sourceCol && sourceCol.dataset.orient === 'horizontal' ? 'h' : 'v';
+  placeholder.className = 'drag-placeholder ' + orient;
+  if (orient === 'h') {
+    placeholder.style.height = draggedEl.offsetHeight + 'px';
+  } else {
+    placeholder.style.height = '40px';
+  }
+}
+
+function onDragEnd() {
+  if (draggedEl) draggedEl.classList.remove('dragging');
+  if (placeholder && placeholder.parentNode) placeholder.parentNode.removeChild(placeholder);
+  document.querySelectorAll('.col.drag-over').forEach(c => c.classList.remove('drag-over'));
+  draggedEl = null;
+  placeholder = null;
+  saveLayout();
+  updateBacklogHint();
+}
+
+document.querySelectorAll('.col.droppable').forEach(col => {
+  col.addEventListener('dragover', e => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    col.classList.add('drag-over');
+    const orient = col.dataset.orient === 'horizontal' ? 'h' : 'v';
+    const afterEl = getDragAfterElement(col, e, orient);
+    if (afterEl == null) {
+      col.appendChild(placeholder);
+    } else {
+      col.insertBefore(placeholder, afterEl);
+    }
+  });
+  col.addEventListener('dragleave', e => {
+    if (!col.contains(e.relatedTarget)) col.classList.remove('drag-over');
+  });
+  col.addEventListener('drop', e => {
+    e.preventDefault();
+    col.classList.remove('drag-over');
+    if (!draggedEl) return;
+    const orient = col.dataset.orient === 'horizontal' ? 'h' : 'v';
+    const afterEl = getDragAfterElement(col, e, orient);
+    if (placeholder && placeholder.parentNode) placeholder.parentNode.removeChild(placeholder);
+    if (afterEl == null) {
+      col.appendChild(draggedEl);
+    } else {
+      col.insertBefore(draggedEl, afterEl);
+    }
+    showToast('Tarjeta movida · guardado automáticamente ✓');
+  });
+});
+
+function getDragAfterElement(container, e, orient) {
+  const cards = [...container.querySelectorAll('.card:not(.dragging)')];
+  if (orient === 'h') {
+    // horizontal: use X coordinate
+    return cards.reduce((closest, child) => {
+      const box = child.getBoundingClientRect();
+      const offset = e.clientX - box.left - box.width / 2;
+      if (offset < 0 && offset > closest.offset) return { offset, element: child };
+      return closest;
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+  } else {
+    return cards.reduce((closest, child) => {
+      const box = child.getBoundingClientRect();
+      const offset = e.clientY - box.top - box.height / 2;
+      if (offset < 0 && offset > closest.offset) return { offset, element: child };
+      return closest;
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+  }
+}
+
+// ─── PERSIST ─────────────────────────────────────────────────────────────────
+function saveLayout() {
+  const layout = {};
+  document.querySelectorAll('.col.droppable').forEach(col => {
+    layout[col.dataset.col] = [...col.querySelectorAll('.card')].map(c => c.dataset.id);
+  });
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(layout)); } catch(e) {}
+}
+
+function loadLayout() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : null;
+  } catch(e) { return null; }
+}
+
+function resetBoard() {
+  renderLayout(DEFAULT_LAYOUT);
+  try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+  showToast('Orden restaurado al original ✓');
+}
+
+function clearStorage() {
+  try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+  showToast('Guardado local eliminado ✓');
+}
+
+// ─── FILTER ──────────────────────────────────────────────────────────────────
+function filterRole(role, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.card[data-role]').forEach(card => {
+    card.classList.toggle('dimmed', role !== 'all' && card.dataset.role !== role);
+  });
+}
+
+// ─── TOAST ───────────────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+// ─── MODAL ───────────────────────────────────────────────────────────────────
+function openModal(id) {
+  const s = STORIES[id].modal;
+  const investHTML = s.invest.map(([k,v]) =>
+    `<div class="invest-item"><strong>${k}</strong>${v}</div>`).join('');
+  const scenariosHTML = s.scenarios.map(sc => {
+    const lines = sc.lines.map(l => {
+      const kws = ['DADO QUE','DADO','CUANDO','ENTONCES','Y '];
+      let out = l;
+      kws.forEach(kw => { out = out.replace(new RegExp('^('+kw+')'), '<span class="kw">$1</span>'); });
+      return `<p>${out}</p>`;
+    }).join('');
+    return `<div class="gherkin-block"><div class="gherkin-title">${sc.title}</div>${lines}</div>`;
+  }).join('');
+  document.getElementById('modal-content').innerHTML = `
+    <div style="margin-bottom:8px"><span class="badge ${STORIES[id].badgeClass}">${STORIES[id].badgeLabel}</span></div>
+    <h2>${s.title}</h2>
+    <div class="meta">${s.meta}</div>
+    <div class="sec">Objetivo</div>
+    <p>${s.goal}</p>
+    <div class="sec">Análisis INVEST</div>
+    <div class="invest-grid">${investHTML}</div>
+    <div class="sec">Criterios de aceptación (Gherkin)</div>
+    ${scenariosHTML}
+  `;
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+function closeOnOverlay(e) { if (e.target === document.getElementById('modal')) closeModal(); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+const saved = loadLayout();
+renderLayout(saved || DEFAULT_LAYOUT);
+if (saved) showToast('Posición guardada restaurada ✓');
+</script>
+</body>
+</html>
